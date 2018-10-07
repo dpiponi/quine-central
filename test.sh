@@ -31,10 +31,13 @@ OCAML() {
 SWIFT() {
   swift $1
 }
+RACKET() {
+  racket -l racket/base -f $1
+}
 
-declare -i n=9
-declare -a langs=(HASKELL RUBY PERL C PYTHON JAVA RUST OCAML SWIFT HASKELL) 
-declare -a exts=(hs rb pl c py java rs ocaml swift hs) 
+declare -i n=10
+declare -a langs=(HASKELL RUBY PERL C PYTHON JAVA RUST OCAML SWIFT RACKET HASKELL) 
+declare -a exts=(hs rb pl c py java rs ocaml swift rkt hs) 
 
 # Create the initial quine
 HASKELL quineCentral.hs > quine0.${exts[0]}
