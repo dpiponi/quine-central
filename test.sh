@@ -38,7 +38,7 @@ JAVASCRIPT() {
   node $1
 }
 
-declare -i n=10
+declare -i n=11
 declare -a langs=(HASKELL RUBY PERL C PYTHON JAVA RUST OCAML SWIFT RACKET JAVASCRIPT HASKELL) 
 declare -a exts=(hs rb pl c py java rs ocaml swift rkt js hs) 
 
