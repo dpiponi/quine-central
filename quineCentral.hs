@@ -9,8 +9,8 @@ langs = [Haskell,
          Rust,
          OCaml,
          Swift,
-         Racket]
--- langs = [Racket, Racket]
+         Racket,
+         Javascript]
 
 data Languages = Haskell
                | Ruby
@@ -22,6 +22,7 @@ data Languages = Haskell
                | OCaml
                | Swift
                | Racket
+               | Javascript
 
 -- Generate code to emit individual characters comprising string.
 -- Used to eliminate escape character issues.
@@ -47,6 +48,9 @@ sequenceFromString Swift s = "print(String([" ++(intercalate "," $
       \ terminator:String());"
 sequenceFromString Racket s = "(display (bytes " ++
     (intercalate " " $ map (\c -> show (fromEnum c)) s) ++ "))"
+sequenceFromString Javascript s = "process.stdout.write(String.fromCharCode.apply(null, [" ++
+    (intercalate "," $ map (\c -> show (fromEnum c)) s) ++
+    "]));"
 
 paramList' Haskell = intercalate " " . map (\n -> "a" ++ show n)
 paramList' C       = intercalate "," . map (\n -> "char *a" ++ show n)
@@ -57,6 +61,7 @@ paramList' Rust    = intercalate "," . map (\n -> "a" ++ show n ++ ":&str")
 paramList' OCaml   = intercalate " " . map (\n -> "a" ++ show n)
 paramList' Swift   = intercalate "," . map (\n -> "_ a" ++ show n++":String")
 paramList' Racket  = intercalate " " . map (\n -> "a" ++ show n)
+paramList' Javascript = intercalate "," . map (\n -> "a" ++ show n)
 
 -- Generate a list or arguments to a function such as "a0,a1,..."
 paramList Perl    _ = ""
@@ -76,6 +81,7 @@ divider Rust    = "\",\""
 divider OCaml   = "\" \""
 divider Swift   = "\",\""
 divider Racket  = "\" \""
+divider Javascript  = "\",\""
 
 -- Start the main part of program
 defn C       = "int main() {q(\""
@@ -88,6 +94,7 @@ defn Rust    = "fn main() {q(\""
 defn OCaml   = "q \""
 defn Swift   = "q(\""
 defn Racket  = "(q \""
+defn Javascript  = "q(\""
 
 -- End main part of program
 endDefn C       = "\");}"
@@ -100,6 +107,7 @@ endDefn Rust    = "\");}"
 endDefn OCaml   = "\";;"
 endDefn Swift   = "\");"
 endDefn Racket   = "\")"
+endDefn Javascript   = "\");"
 
 -- Print the nth argument to a function
 arg Haskell n = "a" ++ show n
@@ -112,6 +120,7 @@ arg Rust n    = "w(a" ++ show n ++ ");"
 arg OCaml n   = "print_string a" ++ show n ++ ";"
 arg Swift n   = "print(a" ++ show n ++ ", terminator:String());"
 arg Racket n  = "(display a" ++ show n ++ ")"
+arg Javascript n  = "process.stdout.write(a" ++ show n ++ ");"
 
 argDivide Haskell l = "++" ++
                       sequenceFromString Haskell (divider l) ++
@@ -131,6 +140,7 @@ argDivide Rust l    = sequenceFromString Rust (divider l)
 argDivide OCaml l   = sequenceFromString OCaml (divider l)
 argDivide Swift l   = sequenceFromString Swift (divider l)
 argDivide Racket l  = sequenceFromString Racket (divider l)
+argDivide Javascript l = sequenceFromString Javascript (divider l)
 
 argList lang1 lang2 n = intercalate (argDivide lang1 lang2) $
     map (arg lang1) ([1..n-1] ++ [0])
@@ -197,7 +207,6 @@ fromTo n Swift l = "func q(" ++
                    argList Swift l n ++
                    sequenceFromString Swift (endDefn l ++ "\n") ++
                    "}"
-
 fromTo n Racket l = "(define (q " ++
                     paramList Racket n ++
                     ") (begin " ++
@@ -206,6 +215,13 @@ fromTo n Racket l = "(define (q " ++
                     argList Racket l n ++
                     sequenceFromString Racket (endDefn l ++ "\n") ++
                     "))"
+fromTo n Javascript l = "function q(" ++
+                        paramList Javascript n ++ ") {" ++
+                        "process.stdout.write(a0);" ++
+                        sequenceFromString Javascript ("\n" ++ defn l) ++
+                        argList Javascript l n ++
+                        sequenceFromString Javascript (endDefn l ++ "\n") ++
+                        "};"
 
 main = do
     let n = length langs

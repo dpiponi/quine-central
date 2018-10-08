@@ -34,10 +34,13 @@ SWIFT() {
 RACKET() {
   racket -l racket/base -f $1
 }
+JAVASCRIPT() {
+  node $1
+}
 
 declare -i n=10
-declare -a langs=(HASKELL RUBY PERL C PYTHON JAVA RUST OCAML SWIFT RACKET HASKELL) 
-declare -a exts=(hs rb pl c py java rs ocaml swift rkt hs) 
+declare -a langs=(HASKELL RUBY PERL C PYTHON JAVA RUST OCAML SWIFT RACKET JAVASCRIPT HASKELL) 
+declare -a exts=(hs rb pl c py java rs ocaml swift rkt js hs) 
 
 # Create the initial quine
 HASKELL quineCentral.hs > quine0.${exts[0]}
